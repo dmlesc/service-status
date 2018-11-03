@@ -1,0 +1,52 @@
+<html>
+<head>
+   <title>Cloud Services</title>
+   <script>
+      function init(){
+         getData();
+      }
+      function getData(){
+         var ajax = new XMLHttpRequest();
+         ajax.onreadystatechange=function() {
+            if (ajax.readyState==4 && ajax.status==200) {
+               var urls = JSON.parse(ajax.responseText)["urls"];
+               var html = "<table><tr><th>Status</th><th>URL</th></tr>";
+               for (var i = 0; i < urls.length; i++) {
+                  var name = urls[i]["name"];
+                  var reason = urls[i]["reason"];
+                  if (reason == "GOOD")
+                     reason = changeColor(reason, "lime");
+                  else
+                     reason = changeColor(reason, "red");
+                  html += createTableRow([reason, name]);
+               }
+               html += "</table>";
+               getID("urls").innerHTML = html;
+               setTimeout("getData()",30000);
+            }
+         }
+         ajax.open("GET", "cloudservices/csstatus.json", true);
+         ajax.send();
+      }
+      function createTableRow(data) {
+         var html = "<tr>";
+         for (var i = 0; i < data.length; i++)
+            html += "<td>" + data[i] + "</td>";
+         html += "</tr>";
+         return html;
+      }
+      function getID(id) { return document.getElementById(id); }
+      function changeColor(text,color){return "<span style=\"color:" + color + "\">" + text + "</span>";}
+   </script>
+   <style>
+      body {background-color:#252526;color:white;font-family:arial;font-size:24}
+      table {border-spacing:5px;background-color:#2D2D30;color:white;font-size:24}
+      th {background-color:#252526;text-align:left;padding:5px;border: 1px solid #3F3F46;}
+      th.app {background-color:#EA8E22;font-size:14}
+   </style>
+</head>
+<body onload="init()">
+   <a href="cloudservices/cslog.txt"><table id="apphead"><th class="app">Cloud Services</th></table></a></br>
+   <div id="urls"></div>
+</body>
+</html>
